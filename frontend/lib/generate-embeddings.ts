@@ -1,8 +1,13 @@
 import type { PineconeRecord } from "@pinecone-database/pinecone";
-import type { TextMetadata } from "./types";
+import type { GenreMatch } from "@/types";
 import { Pipeline } from "@xenova/transformers";
 import { v4 as uuidv4 } from "uuid";
 import { sliceIntoChunks } from "@/utils";
+
+interface TextMetadata {
+  text: string;
+  genres?: string[];
+}
 
 class Embedder {
   private pipe: Pipeline | null = null;
@@ -14,12 +19,13 @@ class Embedder {
   }
 
   // Embed a single string
-  async embed(text: string): Promise<PineconeRecord<TextMetadata>> {
+  async embed(text: string, genres?: string[]): Promise<PineconeRecord<TextMetadata>> {
     const result = this.pipe && (await this.pipe(text));
     return {
       id: uuidv4(),
       metadata: {
         text,
+        genres
       },
       values: Array.from(result.data),
     };
