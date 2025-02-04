@@ -13,7 +13,7 @@ interface PineconeResponse {
 }
 
 const pinecone = new Pinecone({
-  apiKey: "pcsk_5LUkk4_AVUjAQr5WKiicKoM2494iUPCqrfLzDKBjzxAP9AScyR5KVx5JNzAWybAQJXBzZu",
+  apiKey: "pcsk_6XgYfG_Dq1zSKKxSSnnf3Av9DMAwNM7qVQXqCbxYN9XVjs7rSeD8gLKkpQA2JbLuZEXwPF",
 });
 
 const index = pinecone.index('hackbrown-search');
