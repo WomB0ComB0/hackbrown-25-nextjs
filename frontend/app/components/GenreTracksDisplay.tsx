@@ -4,20 +4,10 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { searchSpotifyTracks, getTopGenres } from '@/lib'
 
-interface Artist {
-  name: string;
-}
-
-interface SearchTrack {
-  name: string;
-  artists: Artist[];
-  id: string;
-}
-
 interface Track {
   name: string;
   artists: string[];
-  id: string;  
+  id: string;
 }
 
 interface GenreData {

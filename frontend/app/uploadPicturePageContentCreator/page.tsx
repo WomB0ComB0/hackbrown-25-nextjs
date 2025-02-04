@@ -47,46 +47,46 @@ export default function UploadPicturePage() {
     //   setLoading(false);
     // }
   };
-  
+
   const handleClosePopup = () => {
     setShowPopup(false);
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center">
-        <div className="z-10">
+      <div className="z-10">
         <Navbar />
-        <h1 className="text-4xl font-bold mb-4">Analyze Top Trending Songs</h1>      
+        <h1 className="text-4xl font-bold mb-4">Analyze Top Trending Songs</h1>
         <form onSubmit={handleSubmit}>
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 hover:from-yellow-500 hover:via-red-500 hover:to-pink-500 text-white font-bold py-2 px-4 rounded shadow-lg transform hover:scale-105 transition-transform duration-300"
-            >
-              {loading ? 'Analyzing Trends...' : 'Analyze Trends'}
-            </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 hover:from-yellow-500 hover:via-red-500 hover:to-pink-500 text-white font-bold py-2 px-4 rounded shadow-lg transform hover:scale-105 transition-transform duration-300"
+          >
+            {loading ? 'Analyzing Trends...' : 'Analyze Trends'}
+          </button>
         </form>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+        {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      {musicKeywords && (
-        
-        <div style={{ marginTop: '20px' }}>
-          <h2>Music Keywords:</h2>
-          <p>{musicKeywords}</p>
-        </div>
-      )}
+        {musicKeywords && (
+
+          <div style={{ marginTop: '20px' }}>
+            <h2>Music Keywords:</h2>
+            <p>{musicKeywords}</p>
+          </div>
+        )}
       </div>
-       <video
-            autoPlay
-            loop
-            muted
-            className="absolute top-0 left-0 w-full h-full object-cover z-0"
-        >
-            <source src="/vinylDisk.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-        </video>
-        {showPopup && <PopupContentCreator text={musicKeywords} onClose={handleClosePopup} />}
+      <video
+        autoPlay
+        loop
+        muted
+        className="absolute top-0 left-0 w-full h-full object-cover z-0"
+      >
+        <source src="/vinylDisk.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      {showPopup && <PopupContentCreator text={musicKeywords} onClose={handleClosePopup} />}
 
     </div>
   );
