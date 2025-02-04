@@ -1,4 +1,5 @@
 import { Pinecone } from '@pinecone-database/pinecone';
+import { embedder } from './generate-embeddings';
 
 interface PineconeMatch {
   id: string;
@@ -18,12 +19,16 @@ const pinecone = new Pinecone({
 
 const index = pinecone.index('hackbrown-search');
 
-export async function getTopGenres(input: number[], genre: string): Promise<string[]> {
+export async function getTopGenres(genre: string, topK: number = 10): Promise<string[]> {
   try {
+
+    await embedder.init();
+
+    const queryEmbeddings = await embedder.embed(genre);
     const queryResponse = await index.query({
-      topK: 10,
+      topK: topK,
       includeMetadata: true,
-      vector: input,
+      vector: queryEmbeddings.values,
       filter: {
         genre: { $eq: genre }
       }

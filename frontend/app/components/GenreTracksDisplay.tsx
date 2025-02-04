@@ -46,7 +46,8 @@ const GenreTracksDisplay: React.FC<GenreTracksDisplayProps> = ({ keywords }) => 
     setLoading(true);
     setError('');
     try {
-      const topGenres = await getTopGenres([], keywords);
+      const topGenres = await getTopGenres(keywords);
+      console.log(topGenres);
       const tracksPromises = topGenres.map(async (genre) => {
         const searchTracks = await searchSpotifyTracks(genre);
         const tracks: Track[] = searchTracks.slice(0, 10).map(track => ({
