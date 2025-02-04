@@ -1,12 +1,17 @@
 "use client";
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import Navbar from "../components/navbar/Navbar";
 import Image from 'next/image';
 import Link from 'next/link';
 export default function UserTypePage() {
+  const router = useRouter();
 
-  const handleChoiceClick = (choice) => {
-    // Navigate to different pages based on the choice
+  const handleChoiceClick = (choice: string) => {
+    if (choice === 'personal') {
+      router.push('/uploadPicturePage');
+    } else if (choice === 'content') {
+      router.push('/uploadPicturePageContentCreator');
+    }
   };
 
   return (

@@ -29,10 +29,10 @@ export default function UploadPicturePage() {
 
     setLoading(true)
     setError("")
-    setMusicKeywords("pop")
+    setMusicKeywords("")
 
     const formData = new FormData()
-    formData.append("image", fileInputRef.current.files[0])
+    formData.append("file", fileInputRef.current.files[0])
 
     try {
       const response = await axios.post("http://127.0.0.1:5000/analyze-image", formData, {
@@ -41,16 +41,15 @@ export default function UploadPicturePage() {
         },
       })
 
-      if (!response.data.music_keywords) {
+      if (response.data.music_keywords) {
+        setMusicKeywords(response.data.music_keywords)
+        setShowPopup(true)
+      } else {
         setError("No music keywords found in the image.")
-        return
       }
-
-      setMusicKeywords(response.data.music_keywords)
-      setShowPopup(true)
-    } catch (err) {
-      setError("Failed to analyze the image. Please try again.")
-      console.error(err)
+    } catch (error) {
+      console.error('Failed to analyze image:', error)
+      setError("Failed to analyze image. Please try again.")
     } finally {
       setLoading(false)
     }

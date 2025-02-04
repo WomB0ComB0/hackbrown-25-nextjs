@@ -7,31 +7,29 @@ import { sliceIntoChunks } from "@/utils";
 class Embedder {
   private pipe: FeatureExtractionPipeline | null = null;
 
-  // Initialize the pipeline
   async init() {
     const { pipeline } = await import("@xenova/transformers");
     this.pipe = await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2");
   }
 
-  // Embed a single string
   async embed(text: string, genres?: GenreMatch[]): Promise<PineconeRecord> {
     if (!this.pipe) {
       throw new Error("Pipeline not initialized. Call init() first.");
     }
     
     const result = await this.pipe(text);
+    const meanValue = Array.from(result.data).reduce((sum, val) => sum + val, 0) / result.data.length;
     
     return {
       id: uuidv4(),
       metadata: {
         text,
-        genres: genres?.map((genre) => JSON.stringify(genre)) ?? [], // Convert objects to strings
+        genres: genres?.map((genre) => JSON.stringify(genre)) ?? [],
       },
-      values: Array.from(result.data),
+      values: [meanValue],
     };
   }
 
-  // Batch an array of strings and embed each batch
   async embedBatch(
     texts: string[],
     batchSize: number,
@@ -48,22 +46,3 @@ class Embedder {
 
 const embedder = new Embedder();
 export { embedder };
-
-/**
- * Helper function to retry failed API calls
- */
-async function retry<T>(
-  fn: () => Promise<T>, 
-  retries: number, 
-  delay: number
-): Promise<T> {
-  try {
-    return await fn();
-  } catch (error) {
-    if (retries > 0) {
-      await new Promise(resolve => setTimeout(resolve, delay));
-      return retry(fn, retries - 1, delay);
-    }
-    throw error;
-  }
-}
