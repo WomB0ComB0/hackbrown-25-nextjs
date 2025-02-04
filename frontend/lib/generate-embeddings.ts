@@ -1,49 +1,50 @@
-import OpenAI from 'openai';
-const TEXT_EMBEDDING_MODEL = 'text-embedding-3-small';
-const MAX_RETRIES = 3;
-const RETRY_DELAY_MS = 1000;
+import type { PineconeRecord } from "@pinecone-database/pinecone";
+import type { TextMetadata } from "./types";
+import { Pipeline } from "@xenova/transformers";
+import { v4 as uuidv4 } from "uuid";
+import { sliceIntoChunks } from "@/utils";
 
-/**
- * Configuration for OpenAI client
- */
-const openai = new OpenAI({
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true,
-  maxRetries: MAX_RETRIES,
-  timeout: 30000 // 30 second timeout
-});
+class Embedder {
+  private pipe: Pipeline | null = null;
 
-/**
- * Generates an embedding vector for the given text using OpenAI's API
- * @param text - The text to generate an embedding for
- * @returns Promise resolving to array of embedding numbers
- * @throws Error if OpenAI API call fails after retries
- */
-export const generateEmbedding = async(text: string): Promise<number[]> => {
-  try {
-    // Validate input
-    if (!text || text.trim().length === 0) {
-      throw new Error('Input text cannot be empty');
+  // Initialize the pipeline
+  async init() {
+    const { pipeline } = await import("@xenova/transformers");
+    this.pipe = await pipeline("embeddings", "Xenova/all-MiniLM-L6-v2");
+  }
+
+  // Embed a single string
+  async embed(text: string): Promise<PineconeRecord<TextMetadata>> {
+    const result = this.pipe && (await this.pipe(text));
+    return {
+      id: uuidv4(),
+      metadata: {
+        text,
+      },
+      values: Array.from(result.data),
+    };
+  }
+
+  // Batch an array of string and embed each batch
+  // Call onDoneBatch with the embeddings of each batch
+  async embedBatch(
+    texts: string[],
+    batchSize: number,
+    onDoneBatch: (embeddings: PineconeRecord<TextMetadata>[]) => void
+  ) {
+    const batches = sliceIntoChunks<string>(texts, batchSize);
+    for (const batch of batches) {
+      const embeddings = await Promise.all(
+        batch.map((text) => this.embed(text))
+      );
+      await onDoneBatch(embeddings);
     }
-
-    // Make API call with retries
-    const response = await retry(
-      async () => await openai.embeddings.create({
-        model: TEXT_EMBEDDING_MODEL,
-        input: text.trim(),
-      }),
-      MAX_RETRIES,
-      RETRY_DELAY_MS
-    );
-
-    return response.data[0].embedding;
-
-  } catch (error) {
-    console.error('Error generating embedding:', error);
-    throw error;
   }
 }
 
+const embedder = new Embedder();
+
+export { embedder };
 /**
  * Helper function to retry failed API calls
  */
