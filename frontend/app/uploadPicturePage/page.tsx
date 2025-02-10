@@ -29,31 +29,31 @@ export default function UploadPicturePage() {
 
     setLoading(true)
     setError("")
-    setMusicKeywords("")
+    setMusicKeywords("pop")
 
     const formData = new FormData()
     formData.append("file", fileInputRef.current.files[0])
 
-    try {
-      const response = await axios.post("http://127.0.0.1:5000/analyze-image", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
+  //   try {
+  //     const response = await axios.post("http://127.0.0.1:5000/analyze-image", formData, {
+  //       headers: {
+  //         "Content-Type": "multipart/form-data",
+  //       },
+  //     })
 
-      if (response.data.music_keywords) {
-        setMusicKeywords(response.data.music_keywords)
-        setShowPopup(true)
-      } else {
-        setError("No music keywords found in the image.")
-      }
-    } catch (error) {
-      console.error('Failed to analyze image:', error)
-      setError("Failed to analyze image. Please try again.")
-    } finally {
-      setLoading(false)
+  //     if (response.data.music_keywords) {
+  //       setMusicKeywords(response.data.music_keywords)
+  //       setShowPopup(true)
+  //     } else {
+  //       setError("No music keywords found in the image.")
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to analyze image:', error)
+  //     setError("Failed to analyze image. Please try again.")
+  //   } finally {
+  //     setLoading(false)
+  //   }
     }
-  }
 
   const handleClosePopup = () => {
     setShowPopup(false)

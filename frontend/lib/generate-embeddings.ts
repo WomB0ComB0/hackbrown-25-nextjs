@@ -8,19 +8,28 @@ class Embedder {
   private pipe: FeatureExtractionPipeline | null = null;
 
   async init() {
+    console.log('Initializing embedder pipeline...');
     const { pipeline } = await import("@xenova/transformers");
     this.pipe = await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2");
+    console.log('Pipeline initialized successfully');
   }
 
   async embed(text: string, genres?: GenreMatch[]): Promise<PineconeRecord> {
+    console.log('Starting embedding process for text:', text);
+    
     if (!this.pipe) {
+      console.error('Pipeline not initialized');
       throw new Error("Pipeline not initialized. Call init() first.");
     }
     
+    console.log('Generating embeddings...');
     const result = await this.pipe(text);
+    console.log('Raw embedding result generated');
+
     const meanValue = Array.from(result.data).reduce((sum, val) => sum + val, 0) / result.data.length;
+    console.log('Calculated mean embedding value:', meanValue);
     
-    return {
+    const record = {
       id: uuidv4(),
       metadata: {
         text,
@@ -28,6 +37,9 @@ class Embedder {
       },
       values: [meanValue],
     };
+    console.log('Created Pinecone record:', record);
+    
+    return record;
   }
 
   async embedBatch(
@@ -35,14 +47,21 @@ class Embedder {
     batchSize: number,
     onDoneBatch: (embeddings: PineconeRecord[]) => Promise<void>
   ): Promise<void> {
+    console.log(`Starting batch embedding for ${texts.length} texts with batch size ${batchSize}`);
     const batches = sliceIntoChunks(texts, batchSize);
+    console.log(`Split into ${batches.length} batches`);
 
-    for (const batch of batches) {
+    for (const [index, batch] of batches.entries()) {
+      console.log(`Processing batch ${index + 1}/${batches.length}`);
       const embeddings = await Promise.all(batch.map((text) => this.embed(text)));
+      console.log(`Batch ${index + 1} embeddings generated`);
       await onDoneBatch(embeddings);
+      console.log(`Batch ${index + 1} processing complete`);
     }
+    console.log('All batches processed successfully');
   }
 }
 
 const embedder = new Embedder();
+console.log('Embedder instance created');
 export { embedder };

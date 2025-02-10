@@ -14,7 +14,6 @@ const nextConfig: NextConfig = {
       };
     }
 
-    // Add rule to handle .node files
     config.module.rules.push({
       test: /\.node$/,
       use: 'node-loader',
