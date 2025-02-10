@@ -1,10 +1,10 @@
-import { FeatureExtractionPipeline } from '@xenova/transformers';
 import axios from 'axios';
+import { getURL } from '@/utils';
 
 class Embedder {
   async embed(text: string): Promise<number[]> {
     try {
-      const response = await axios.post('/api/embed', {
+      const response = await axios.post(getURL('/api/embed'), {
         text,
       });
 
