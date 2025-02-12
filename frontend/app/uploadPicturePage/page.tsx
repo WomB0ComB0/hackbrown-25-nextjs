@@ -1,6 +1,5 @@
 "use client"
 import { useState, useRef } from "react"
-import axios from "axios"
 import Navbar from "../components/navbar/Navbar"
 import Popup from "../components/Popup"
 import GenreTracksDisplay from "../components/GenreTracksDisplay"

@@ -14,11 +14,9 @@ const nextConfig: NextConfig = {
       };
     }
 
-    config.module.rules.push({
-      test: /\.node$/,
-      use: 'node-loader',
-      type: 'javascript/auto',
-    });
+    config.module.rules = config.module.rules.filter((rule: any) => 
+      rule.use !== 'node-loader'
+    );
 
     return config;
   },
@@ -29,6 +27,9 @@ const nextConfig: NextConfig = {
         destination: 'https://huggingface.co/Xenova/all-MiniLM-L6-v2/resolve/main/:path*'
       }
     ];
+  },
+  experimental: {
+    serverComponentsExternalPackages: ['@xenova/transformers']
   }
 };
 

@@ -1,6 +1,6 @@
 import { Pinecone } from '@pinecone-database/pinecone';
 import { NextResponse } from 'next/server';
-import { embedder } from '@/lib/generate-embeddings';
+import { getEmbedder } from '@/lib/server/embedder';
 import { z } from 'zod';
 
 const pinecone = new Pinecone({
@@ -22,29 +22,22 @@ export async function POST(request: Request) {
     }
     
     const { genre } = parsed;
-
-    // Generate the embedding for the genre
+    const embedder = await getEmbedder();
     const embedding = await embedder.embed(genre);
 
-    if (embedding.values.length !== 384) {
-      throw new Error('Embedding dimensionality mismatch.');
-    }
-
     const queryResponse = await index.query({
+      // vector: embedding,
       topK: 10,
       includeMetadata: true,
-      vector: embedding,
-      filter: {
-        genre: { $eq: genre }
-      }
+      id: `genre_${genre}`
     });
 
     const topGenres = queryResponse.matches.map(match => {
       if (Array.isArray(match.metadata?.genres)) {
-        return match.metadata.genres[0];
+        return match.metadata.genres[1];
       }
       return '';
-    });
+    }).filter(Boolean);
 
     return NextResponse.json({ genres: topGenres });
   } catch (error) {

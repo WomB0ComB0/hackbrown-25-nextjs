@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-const client_id = process.env.SPOTIFY_CLIENT_ID;
-const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-const refresh_token = process.env.SPOTIFY_REFRESH_TOKEN;
+const client_id = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID;
+const client_secret = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_SECRET;
+const refresh_token = process.env.NEXT_PUBLIC_SPOTIFY_REFRESH_TOKEN;
 
 const basic = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
 
@@ -152,6 +152,14 @@ export const getAccessToken = async (): Promise<AccessTokenResponse> => {
         },
       }
     );
+
+    if (response.status !== 200) {
+      throw new Error('Failed to fetch access token');
+    }
+
+    if (!response.data.access_token) {
+      throw new Error('Failed to fetch access token');
+    }
 
     return response.data;
   } catch (error) {
@@ -349,6 +357,7 @@ interface SearchTrack {
   name: string;
   artists: Artist[];
   id: string;
+  external_urls: ExternalUrls;
 }
 
 interface SearchResponse {

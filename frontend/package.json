@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "npx @xenova/transformers download Xenova/all-MiniLM-L6-v2"
   },
   "dependencies": {
     "@pinecone-database/pinecone": "^4.1.0",

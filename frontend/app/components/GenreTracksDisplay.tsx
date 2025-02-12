@@ -2,12 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { searchSpotifyTracks, getTopGenres } from '@/lib'
+import { searchSpotifyTracks, getTopGenres } from '@/lib';
+import Head from 'next/head';
+import Link from 'next/link';
 
 interface Track {
   name: string;
   artists: string[];
   id: string;
+  external_url?: string;
 }
 
 interface GenreData {
@@ -43,7 +46,8 @@ const GenreTracksDisplay: React.FC<GenreTracksDisplayProps> = ({ keywords }) => 
         const tracks: Track[] = searchTracks.slice(0, 10).map(track => ({
           name: track.name,
           artists: track.artists.map(artist => artist.name),
-          id: track.id
+          id: track.id,
+          external_url: track.external_urls?.spotify || `https://open.spotify.com/track/${track.id}`
         }));
         return {
           genre,
@@ -69,62 +73,79 @@ const GenreTracksDisplay: React.FC<GenreTracksDisplayProps> = ({ keywords }) => 
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4">
-      {loading ? (
-        <div className="text-center py-8">Loading genre data...</div>
-      ) : error ? (
-        <div className="text-red-500 text-center py-8">{error}</div>
-      ) : (
-        <>
-          {currentGenres.map((genreItem, index) => (
-            <Card key={`${genreItem.genre}-${index}`} className="mb-6">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold">
-                  Genre: {genreItem.genre}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {genreItem.tracks.map((track) => (
-                    <div
-                      key={track.id}
-                      className="p-4 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                    >
-                      <div className="font-medium">{track.name}</div>
-                      <div className="text-sm text-gray-600">
-                        {track.artists.join(', ')}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+    <>
+      <Head>
+        <meta property="og:title" content={`Music Recommendations - ${keywords}`} />
+        <meta property="og:description" content={`Top tracks for genres related to ${keywords}`} />
+        <meta property="og:type" content="music.playlist" />
+        {currentGenres[0]?.tracks[0]?.external_url && (
+          <meta property="og:audio" content={currentGenres[0].tracks[0].external_url} />
+        )}
+      </Head>
 
-          {genreData.length > 0 && (
-            <div className="flex justify-center items-center gap-4 mt-6">
-              <Button
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-                variant="outline"
-              >
-                Previous
-              </Button>
-              <span className="text-sm">
-                Page {currentPage} of {totalPages}
-              </span>
-              <Button
-                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-                variant="outline"
-              >
-                Next
-              </Button>
-            </div>
-          )}
-        </>
-      )}
-    </div>
+      <div className="w-full max-w-4xl mx-auto p-4">
+        {loading ? (
+          <div className="text-center py-8">Loading genre data...</div>
+        ) : error ? (
+          <div className="text-red-500 text-center py-8">{error}</div>
+        ) : (
+          <>
+            {currentGenres.map((genreItem, index) => (
+              <Card key={`${genreItem.genre}-${index}`} className="mb-6">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold">
+                    Genre: {genreItem.genre}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {genreItem.tracks.map((track) => (
+                      <Link
+                        href={track.external_url || '#'}
+                        key={track.id}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <div
+                          className="p-4 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
+                        >
+                          <div className="font-medium">{track.name}</div>
+                          <div className="text-sm text-gray-600">
+                            {track.artists.join(', ')}
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+
+            {genreData.length > 0 && (
+              <div className="flex justify-center items-center gap-4 mt-6">
+                <Button
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  variant="outline"
+                >
+                  Previous
+                </Button>
+                <span className="text-sm">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <Button
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  variant="outline"
+                >
+                  Next
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </>
   );
 };
 
