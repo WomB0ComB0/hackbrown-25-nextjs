@@ -18,7 +18,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.474.0",
     "mongoose": "^8.9.6",
-    "next": "15.1.6",
+    "next": "15.5.14",
     "node-loader": "^2.1.0",
     "onnxruntime-node": "^1.20.1",
     "openai": "^4.82.0",
